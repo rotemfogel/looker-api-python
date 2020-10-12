@@ -153,8 +153,9 @@ def main():
                                       'layouts': x['dashboard_layouts'][0]['dashboard_layout_components']
                                       }, dashboards)))
     # print(dash)
-    # dash_list = [11, 84, 97, 112, 133, 147, 241, 298, 311, 317]
-    dash_list = [182, 236, 170, 38, 158, 155, 225, 227, 669, 227, 224, 308, 148, 252, 304]
+    dash_list = [11, 38, 84, 97, 112, 133, 147, 148, 155, 158, 170, 182, 189, 224, 225, 227, 236, 241, 252,
+                 298, 304, 308, 311, 317, 346, 347]
+    # dash_list = [133, 236]
     filtered = list(filter(lambda x: x['id'] in dash_list, dash))
     for d in filtered:
         print(f'"{d["title"]}",{d["link"]},')
