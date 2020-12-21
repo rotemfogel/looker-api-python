@@ -47,14 +47,13 @@ class LookerApi:
 
     def get_all_dashboards(self):
         def get_dashboard(dash_id: int) -> str:
-            return requests.get(self._URL + f'dashboards/{dash_id}', headers=self._headers).json()
+            return self.get(f'dashboards/{dash_id}')
 
-        dashboards = requests.get(self._URL + 'dashboards', headers=self._headers).json()
-        ids = list(map(lambda x: x['id'], dashboards))
+        dashboards = self.get('dashboards')
+        dashboard_ids = list(map(lambda x: x['id'], dashboards))
         dashboards = []
-        for dashboard_id in ids:
+        for dashboard_id in dashboard_ids:
             dashboards.append(get_dashboard(dashboard_id))
-            print(".")
         return dashboards
 
     def get_all_users(self):
@@ -137,13 +136,14 @@ def _process_logins():
 
 def main():
     url_prefix = f'https://{_endpoint}/dashboards/'
-    # looker_api = LookerApi()
-    # _write('dashboards', looker_api.get_all_dashboards())
+    looker_api = LookerApi()
+    _write('dashboards', looker_api.get_all_dashboards())
     # _write('users', looker_api.get_all_users())
     # _write('roles', looker_api.get_all_roles())
     # _write('groups', looker_api.get_all_groups())
     # _write('swagger', looker_api.get('swagger.json'))
     # _write('looks', looker_api.get('looks'))
+    # _process_logins()
     dashboards = _read('dashboards.json')
     dash = list(filter(lambda x: 'thelook::' not in str(x['link']),
                        map(lambda x: {'id': x['id'],
@@ -153,15 +153,18 @@ def main():
                                       'layouts': x['dashboard_layouts'][0]['dashboard_layout_components']
                                       }, dashboards)))
     # print(dash)
-    dash_list = [11, 38, 84, 97, 112, 133, 147, 148, 155, 158, 170, 182, 189, 224, 225, 227, 236, 241, 252,
-                 298, 304, 308, 311, 317, 346, 347]
-    # dash_list = [133, 236]
-    filtered = list(filter(lambda x: x['id'] in dash_list, dash))
-    for d in filtered:
-        print(f'"{d["title"]}",{d["link"]},')
-        for layout in d['layouts']:
-            if layout['element_title'] and not layout['deleted']:
-                print(f',,"{layout["element_title"]}"')
+    # # dash_list = [11, 38, 84, 97, 112, 133, 147, 148, 155, 158, 170, 182, 189, 224, 225, 227, 236, 241, 252,
+    # #              298, 304, 308, 311, 317, 346, 347]
+    # dash_list = [158, 83, 310]
+    dash_list = [369]
+    layouts = list(filter(lambda x: x['id'] in dash_list, dash))[-1]['layouts']
+    titles = list(map(lambda x: str(x['element_title']).replace('Premium', 'Marketplace'), layouts))
+    print(json.dumps(titles, indent=1))
+    # for d in filtered:
+    #     print(f'"{d["title"]}",{d["link"]},')
+    #     for layout in d['layouts']:
+    #         if layout['element_title'] and not layout['deleted']:
+    #             print(f',,"{layout["element_title"]}"')
     # less_than_5 = list(filter(lambda x: len(x['layouts']) < 5, dash))
     # print(less_than_5)
     # print(sorted(less_than_5, key=lambda x: x['id']))
