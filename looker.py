@@ -1,5 +1,6 @@
 import json
 import os
+from pprint import pprint
 
 import requests
 from dotenv import load_dotenv, find_dotenv
@@ -136,8 +137,8 @@ def _process_logins():
 
 def main():
     url_prefix = f'https://{_endpoint}/dashboards/'
-    looker_api = LookerApi()
-    _write('dashboards', looker_api.get_all_dashboards())
+    # looker_api = LookerApi()
+    # _write('dashboards', looker_api.get_all_dashboards())
     # _write('users', looker_api.get_all_users())
     # _write('roles', looker_api.get_all_roles())
     # _write('groups', looker_api.get_all_groups())
@@ -152,14 +153,16 @@ def main():
                                       'folder': x['space']['name'],
                                       'layouts': x['dashboard_layouts'][0]['dashboard_layout_components']
                                       }, dashboards)))
-    # print(dash)
+    more_than_25 = list(map(lambda x: {'title': x['title'], 'link': x['link'], 'elements': len(x['layouts'])},
+                            filter(lambda x: len(x['layouts']) > 25, dash)))
+    pprint(more_than_25)
     # # dash_list = [11, 38, 84, 97, 112, 133, 147, 148, 155, 158, 170, 182, 189, 224, 225, 227, 236, 241, 252,
     # #              298, 304, 308, 311, 317, 346, 347]
     # dash_list = [158, 83, 310]
-    dash_list = [369]
-    layouts = list(filter(lambda x: x['id'] in dash_list, dash))[-1]['layouts']
-    titles = list(map(lambda x: str(x['element_title']).replace('Premium', 'Marketplace'), layouts))
-    print(json.dumps(titles, indent=1))
+    # dash_list = [369]
+    # layouts = list(filter(lambda x: x['id'] in dash_list, dash))[-1]['layouts']
+    # titles = list(map(lambda x: str(x['element_title']).replace('Premium', 'Marketplace'), layouts))
+    # print(json.dumps(titles, indent=1))
     # for d in filtered:
     #     print(f'"{d["title"]}",{d["link"]},')
     #     for layout in d['layouts']:
