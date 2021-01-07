@@ -7,6 +7,7 @@ from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 _endpoint = os.getenv('ENDPOINT')
+url_prefix = f'https://{_endpoint}/dashboards/'
 
 
 def _read(file: str) -> dict:
@@ -135,16 +136,7 @@ def _process_logins():
     # print(users)
 
 
-def main():
-    url_prefix = f'https://{_endpoint}/dashboards/'
-    # looker_api = LookerApi()
-    # _write('dashboards', looker_api.get_all_dashboards())
-    # _write('users', looker_api.get_all_users())
-    # _write('roles', looker_api.get_all_roles())
-    # _write('groups', looker_api.get_all_groups())
-    # _write('swagger', looker_api.get('swagger.json'))
-    # _write('looks', looker_api.get('looks'))
-    # _process_logins()
+def _dashboards_with_more_than_25_elements():
     dashboards = _read('dashboards.json')
     dash = list(filter(lambda x: 'thelook::' not in str(x['link']),
                        map(lambda x: {'id': x['id'],
@@ -156,6 +148,18 @@ def main():
     more_than_25 = list(map(lambda x: {'title': x['title'], 'link': x['link'], 'elements': len(x['layouts'])},
                             filter(lambda x: len(x['layouts']) > 25, dash)))
     pprint(more_than_25)
+
+
+def main():
+    looker_api = LookerApi()
+    # _write('dashboards', looker_api.get_all_dashboards())
+    _write('users', looker_api.get_all_users())
+    # _write('roles', looker_api.get_all_roles())
+    # _write('groups', looker_api.get_all_groups())
+    # _write('swagger', looker_api.get('swagger.json'))
+    # _write('looks', looker_api.get('looks'))
+    # _process_logins()
+    # _dashboards_with_more_than_25_elements()
     # # dash_list = [11, 38, 84, 97, 112, 133, 147, 148, 155, 158, 170, 182, 189, 224, 225, 227, 236, 241, 252,
     # #              298, 304, 308, 311, 317, 346, 347]
     # dash_list = [158, 83, 310]
