@@ -158,14 +158,14 @@ def main():
     # _write('groups', looker_api.get_all_groups())
     # _write('swagger', looker_api.get('swagger.json'))
     # _write('looks', looker_api.get('looks'))
-    # _process_logins()
+    _process_logins()
     # _dashboards_with_more_than_25_elements()
-    dashboards = _read('dashboards')
-    titles = list(
-        map(lambda x: {'dashboard': x['title'], 'tiles': list(
-            filter(lambda z: z is not None, list(map(lambda y: y['title'], x['dashboard_elements']))))},
-            dashboards))
-    print(json.dumps(titles, indent=1))
+    # dashboards = _read('dashboards')
+    # titles = list(
+    #     map(lambda x: {'dashboard': x['title'], 'tiles': list(
+    #         filter(lambda z: z is not None, list(map(lambda y: y['title'], x['dashboard_elements']))))},
+    #         dashboards))
+    # print(json.dumps(titles, indent=1))
     # # dash_list = [11, 38, 84, 97, 112, 133, 147, 148, 155, 158, 170, 182, 189, 224, 225, 227, 236, 241, 252,
     # #              298, 304, 308, 311, 317, 346, 347]
     # dash_list = [158, 83, 310]
@@ -179,6 +179,9 @@ def main():
     # less_than_5 = list(filter(lambda x: len(x['layouts']) < 5, dash))
     # print(less_than_5)
     # print(sorted(less_than_5, key=lambda x: x['id']))
+    # users = _read('users.json')
+    # active = list(filter(lambda u: not u['is_disabled'] and str(u['email']).endswith('seekingalpha.com'), users))
+    # print('\n'.join(sorted(list(map(lambda x: f"{x['id']},{x['email']},{str(x['is_disabled']).lower()}", users)))))
 
 
 if __name__ == "__main__":
