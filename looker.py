@@ -1,7 +1,9 @@
 import json
 import os
 from pprint import pprint
+from typing import Optional
 
+import pendulum
 import requests
 from dotenv import load_dotenv, find_dotenv
 
@@ -72,12 +74,33 @@ class LookerApi:
         return response.json()
 
 
+_logged_in_at: str = 'logged_in_at'
+
+
+def _get_last_login(r: dict) -> Optional[str]:
+    def get_last_login(what: str) -> str:
+        _result = None
+        if r.get(what):
+            _result = r[what].get(_logged_in_at)
+        return _result
+
+    credentials: str = 'credentials_'
+    for t in ['google', 'email', 'embed', 'ldap',
+              'looker_openid', 'oidc', 'saml', 'totp']:
+        result = get_last_login(f'{credentials}{t}')
+        if result:
+            break
+    return pendulum.parse(result).format('YYYY-MM-DD') if result else None
+
+
 def _process_logins():
     users = _read('users.json')
     active = list(filter(lambda u: not u['is_disabled'] and str(u['email']).endswith('seekingalpha.com'), users))
     print('total {}\nactive {}'.format(len(users), len(active)))
+
     users = list(
-        map(lambda x: {'id': x['id'], 'email': x['email'], 'groups': x['group_ids'], 'roles': x['role_ids']}, active))
+        map(lambda x: {'id': x['id'], 'email': x['email'], _logged_in_at: _get_last_login(x), 'groups': x['group_ids'],
+                       'roles': x['role_ids']}, active))
     roles = list(map(lambda x: {x['id']: x['name'], 'permissions': x['permission_set']['permissions']}, _read('roles')))
     groups = list(map(lambda x: {x['id']: x['name']}, _read('groups')))
     groupps = []
@@ -126,7 +149,8 @@ def _process_logins():
             user_groups.append('({}, {})'.format(user['id'], group))
         for role in user['roles']:
             user_roles.append('({}, {})'.format(user['id'], role))
-        user_emails.append("({}, '{}')".format(user['id'], user['email']))
+        user_emails.append("({}, '{}', {})".format(user['id'], user['email'],
+                                                   f"'{user[_logged_in_at]}'" if user.get(_logged_in_at) else 'null'))
 
     print('insert into looker_user_groups values ' + ','.join(user_groups) + ';')
     print('insert into looker_user_roles values ' + ','.join(user_roles) + ';')

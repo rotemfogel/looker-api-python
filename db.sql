@@ -81,7 +81,8 @@ DROP TABLE IF EXISTS `looker_users`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `looker_users` (
   `id` int(11) NOT NULL,
-  `name` varchar(100) DEFAULT NULL,
+  `name` varchar(100) NOT NULL,
+  `last_login` date DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
