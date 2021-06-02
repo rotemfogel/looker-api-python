@@ -31,18 +31,21 @@ CREATE TABLE `looker_groups` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `looker_role_permissions`
+-- Table structure for table `looker_users`
 --
 
-DROP TABLE IF EXISTS `looker_role_permissions`;
+DROP TABLE IF EXISTS `looker_users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `looker_role_permissions` (
-  `role_id` int(11) NOT NULL,
-  `permission_id` int(11) NOT NULL,
-  UNIQUE KEY `looker_role_permissions_ux` (`role_id`,`permission_id`)
+CREATE TABLE `looker_users` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `is_disabled` boolean NOT NULL DEFAULT false,
+  `last_login` date DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 --
 -- Table structure for table `looker_user_groups`
@@ -54,7 +57,10 @@ DROP TABLE IF EXISTS `looker_user_groups`;
 CREATE TABLE `looker_user_groups` (
   `user_id` int(11) NOT NULL,
   `group_id` int(11) NOT NULL,
-  UNIQUE KEY `looker_user_groups_ux` (`user_id`,`group_id`)
+  UNIQUE KEY `looker_user_groups_ux` (`user_id`,`group_id`),
+  KEY `user_groups__group_fk` (`group_id`),
+  CONSTRAINT `user_groups__group_fk` FOREIGN KEY (`group_id`) REFERENCES `looker_groups` (`id`),
+  CONSTRAINT `user_groups__user_fk` FOREIGN KEY (`user_id`) REFERENCES `looker_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -68,26 +74,11 @@ DROP TABLE IF EXISTS `looker_user_roles`;
 CREATE TABLE `looker_user_roles` (
   `user_id` int(11) NOT NULL,
   `role_id` int(11) NOT NULL,
-  UNIQUE KEY `looker_user_roles_ux` (`user_id`,`role_id`)
+  UNIQUE KEY `looker_user_roles_ux` (`user_id`,`role_id`),
+  CONSTRAINT `user_roles__user_fk` FOREIGN KEY (`user_id`) REFERENCES `looker_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `looker_users`
---
-
-DROP TABLE IF EXISTS `looker_users`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `looker_users` (
-  `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `last_login` date DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
@@ -97,4 +88,4 @@ CREATE TABLE `looker_users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-06-01 13:35:02
+-- Dump completed on 2021-06-02 11:34:41
