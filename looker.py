@@ -178,9 +178,9 @@ def _dashboards_with_more_than_25_elements():
 
 
 def main():
-    # looker_api = LookerApi()
+    looker_api = LookerApi()
     # _write('dashboards', looker_api.get_all_dashboards())
-    # _write('users', looker_api.get_all_users())
+    _write('users', looker_api.get_all_users())
     # _write('roles', looker_api.get_all_roles())
     # _write('groups', looker_api.get_all_groups())
     # _write('swagger', looker_api.get('swagger.json'))
