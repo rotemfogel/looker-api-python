@@ -94,53 +94,29 @@ def _get_last_login(r: dict) -> Optional[str]:
 
 
 def _process_logins():
+    for table in ['user_groups', 'user_roles', 'roles', 'groups', 'users']:
+        print(f'delete from looker_{table};')
     users = _read('users.json')
-    active = list(filter(lambda u: not u['is_disabled'] and str(u['email']).endswith('seekingalpha.com'), users))
-    print('total {}\nactive {}'.format(len(users), len(active)))
+    # active = list(filter(lambda u: not u['is_disabled'] and str(u['email']).endswith('seekingalpha.com'), users))
+    # print('total {}\nactive {}'.format(len(users), len(active)))
 
     userss = list(
         map(lambda x: {'id': x['id'], 'email': x['email'], 'is_disabled': x['is_disabled'],
                        _logged_in_at: _get_last_login(x), 'groups': x['group_ids'],
                        'roles': x['role_ids']}, users))
-    roles = list(map(lambda x: {x['id']: x['name'], 'permissions': x['permission_set']['permissions']}, _read('roles')))
+    roles = list(map(lambda x: {x['id']: x['name']}, _read('roles')))
+    roless = []
+    for role in roles:
+        for k, v in role.items():
+            roless.append("({}, '{}')".format(k, v))
+    print('insert into looker_roles values ' + ','.join(roless) + ';')
+
     groups = list(map(lambda x: {x['id']: x['name']}, _read('groups')))
     groupps = []
     for group in groups:
         for k, v in group.items():
             groupps.append("({}, '{}')".format(k, v))
-    print('insert into looker_groups values ' + ','.join(groupps))
-
-    ## permissions = list(map(lambda x: x['permissions'], roles))
-    # permissions = [{'access_data': 1}, {'administer': 2}, {'create_alerts': 3}, {'create_prefetches': 4},
-    #                {'create_public_looks': 5}, {'create_table_calculations': 6}, {'deploy': 7}, {'develop': 8},
-    #                {'download_with_limit': 9}, {'download_without_limit': 10}, {'embed_browse_spaces': 11},
-    #                {'explore': 12}, {'follow_alerts': 13}, {'login_special_email': 14}, {'manage_homepage': 15},
-    #                {'manage_models': 16}, {'manage_spaces': 17}, {'save_content': 18}, {'save_sql_runner_content': 19},
-    #                {'schedule_external_look_emails': 20}, {'schedule_look_emails': 21}, {'see_datagroups': 22},
-    #                {'see_drill_overlay': 23}, {'see_logs': 24}, {'see_lookml': 25}, {'see_lookml_dashboards': 26},
-    #                {'see_looks': 27}, {'see_pdts': 28}, {'see_queries': 29}, {'see_schedules': 30}, {'see_sql': 31},
-    #                {'see_sql_runner_content': 32}, {'see_system_activity': 33}, {'see_user_dashboards': 34},
-    #                {'see_users': 35}, {'send_outgoing_webhook': 36}, {'send_to_integration': 37}, {'send_to_s3': 38},
-    #                {'send_to_sftp': 39}, {'sudo': 40}, {'support_access_toggle': 41}, {'update_datagroups': 42},
-    #                {'use_sql_runner': 43}]
-    # role_permissions = []
-    # for role in roles:
-    #     perms = role['permissions']
-    #     ints = []
-    #     for perm in perms:
-    #         for p in permissions:
-    #             for k, v in p.items():
-    #                 if perm == k:
-    #                     ints.append(str(v))
-    #                     break
-    #     keys = list(role.keys())
-    #     role_permissions.append({'id': keys[0], 'permissions': ints})
-    # role_perms = []
-    # for role_perm in role_permissions:
-    #     perms = role_perm['permissions']
-    #     for perm in perms:
-    #         role_perms.append('({}, {})'.format(role_perm['id'], perm))
-    # print('insert into looker_role_permissions values ' + ','.join(role_perms) + ';')
+    print('insert into looker_groups values ' + ','.join(groupps) + ';')
 
     user_groups = []
     user_roles = []
@@ -157,7 +133,7 @@ def _process_logins():
 
     print('insert into looker_users values ' + ','.join(user_emails) + ';')
     print('insert into looker_user_groups values ' + ','.join(user_groups) + ';')
-    # print('insert into looker_user_roles values ' + ','.join(user_roles) + ';')
+    print('insert into looker_user_roles values ' + ','.join(user_roles) + ';')
     # print(groups)
     # print(users)
 
@@ -178,9 +154,9 @@ def _dashboards_with_more_than_25_elements():
 
 
 def main():
-    looker_api = LookerApi()
+    # looker_api = LookerApi()
     # _write('dashboards', looker_api.get_all_dashboards())
-    _write('users', looker_api.get_all_users())
+    # _write('users', looker_api.get_all_users())
     # _write('roles', looker_api.get_all_roles())
     # _write('groups', looker_api.get_all_groups())
     # _write('swagger', looker_api.get('swagger.json'))

@@ -31,21 +31,19 @@ CREATE TABLE `looker_groups` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `looker_users`
+-- Table structure for table `looker_roles`
 --
 
-DROP TABLE IF EXISTS `looker_users`;
+DROP TABLE IF EXISTS `looker_roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `looker_users` (
+CREATE TABLE `looker_roles` (
   `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `is_disabled` boolean NOT NULL DEFAULT false,
-  `last_login` date DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `name` varchar(64) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 --
 -- Table structure for table `looker_user_groups`
@@ -75,10 +73,28 @@ CREATE TABLE `looker_user_roles` (
   `user_id` int(11) NOT NULL,
   `role_id` int(11) NOT NULL,
   UNIQUE KEY `looker_user_roles_ux` (`user_id`,`role_id`),
+  KEY `user_roles__role_fk` (`role_id`),
+  CONSTRAINT `user_roles__role_fk` FOREIGN KEY (`role_id`) REFERENCES `looker_roles` (`id`),
   CONSTRAINT `user_roles__user_fk` FOREIGN KEY (`user_id`) REFERENCES `looker_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `looker_users`
+--
+
+DROP TABLE IF EXISTS `looker_users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `looker_users` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `is_disabled` tinyint(1) NOT NULL DEFAULT 0,
+  `last_login` date DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
@@ -88,4 +104,4 @@ CREATE TABLE `looker_user_roles` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-06-02 11:34:41
+-- Dump completed on 2021-06-17 11:29:23
