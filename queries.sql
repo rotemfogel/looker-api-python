@@ -7,6 +7,7 @@ SELECT id, name, user_roles, is_disabled, last_login
           LEFT JOIN looker_groups g
             ON (    ug.group_id = g.id
                 AND g.id NOT IN (1,12,10))
+         WHERE u.name LIKE '%seekingalpha.com'
          GROUP BY 1,2,4
          ORDER BY u.id) a
  WHERE user_roles IS NOT NULL;
@@ -20,6 +21,7 @@ SELECT g.name group_name, u.name user_name
     ON (    ug.group_id = g.id
         AND g.id NOT IN (1,10,11,12,13))
  WHERE u.id > 1
+   AND u.name LIKE '%seekingalpha.com'
  ORDER BY g.name, u.id;
 
 -- find multiple groups
@@ -32,6 +34,7 @@ WITH d AS (
       ON (    ug.group_id = g.id
           AND g.id NOT IN (1,10,11,12,13))
    WHERE u.id > 1
+     AND u.name LIKE '%seekingalpha.com'
    GROUP BY 1,2,4,5
   HAVING COUNT(g.name)>1
 )
@@ -48,6 +51,7 @@ WITH d AS (
     LEFT JOIN looker_roles r
       ON (ur.role_id = r.id)
    WHERE u.id > 1
+     AND u.name LIKE '%seekingalpha.com'
   --   AND NOT is_disabled
    GROUP BY 1,2,4,5
   HAVING COUNT(r.name)>1
