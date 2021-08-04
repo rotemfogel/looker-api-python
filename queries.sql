@@ -9,8 +9,8 @@ SELECT id, name, user_roles, is_disabled, last_login
                 AND g.id NOT IN (1,12,10))
          WHERE u.name LIKE '%seekingalpha.com'
          GROUP BY 1,2,4
-         ORDER BY u.id) a
- WHERE user_roles IS NOT NULL;
+         ORDER BY u.id) a;
+ -- WHERE user_roles IS NOT NULL;
 
 -- groups query
 SELECT g.name group_name, u.name user_name
@@ -22,6 +22,7 @@ SELECT g.name group_name, u.name user_name
         AND g.id NOT IN (1,10,11,12,13))
  WHERE u.id > 1
    AND u.name LIKE '%seekingalpha.com'
+   AND NOT is_disabled
  ORDER BY g.name, u.id;
 
 -- find multiple groups
