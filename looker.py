@@ -39,13 +39,13 @@ class LookerApi:
         Generates an access token for the Looker API that can be passed in the required authorization header.
         These tokens expire in an hour
         """
-        print('acquiring token...')
+        print('-- acquiring token...')
         data = {
             'client_id': self._client_id,
             'client_secret': self._client_secret
         }
         auth_token = requests.post(self._URL + 'login', data=data)
-        print('token acquired.')
+        print('-- token acquired.')
         return auth_token.json().get('access_token')
 
     def get_all_dashboards(self):
@@ -70,7 +70,7 @@ class LookerApi:
 
     def get(self, what):
         response = requests.get(self._URL + what, headers=self._headers)
-        print('retrieved {}'.format(what))
+        print('-- retrieved {}'.format(what))
         return response.json()
 
 
