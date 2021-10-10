@@ -1,8 +1,8 @@
--- MySQL dump 10.19  Distrib 10.3.29-MariaDB, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.19  Distrib 10.3.31-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: 127.0.0.1    Database: seekingalpha
 -- ------------------------------------------------------
--- Server version	10.5.10-MariaDB-1:10.5.10+maria~focal-log
+-- Server version	10.6.4-MariaDB-1:10.6.4+maria~focal-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -89,7 +89,7 @@ DROP TABLE IF EXISTS `looker_users`;
 CREATE TABLE `looker_users` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `is_disabled` tinyint(1) NOT NULL DEFAULT 0,
+  `enabled` tinyint(1) NOT NULL DEFAULT 0,
   `last_login` date DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -104,4 +104,4 @@ CREATE TABLE `looker_users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-06-17 11:29:23
+-- Dump completed on 2021-10-10 10:56:14

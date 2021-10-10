@@ -101,7 +101,7 @@ def _process_logins():
     # print('total {}\nactive {}'.format(len(users), len(active)))
 
     userss = list(
-        map(lambda x: {'id': x['id'], 'email': x['email'], 'is_disabled': x['is_disabled'],
+        map(lambda x: {'id': x['id'], 'email': x['email'], 'enabled': not x['is_disabled'],
                        _logged_in_at: _get_last_login(x), 'groups': x['group_ids'],
                        'roles': x['role_ids']}, users))
     roles = list(map(lambda x: {x['id']: x['name']}, _read('roles')))
@@ -127,7 +127,7 @@ def _process_logins():
         for role in user['roles']:
             user_roles.append('({}, {})'.format(user['id'], role))
         user_emails.append("({}, '{}', {}, {})".format(user['id'], user['email'],
-                                                       str(user['is_disabled']).lower(),
+                                                       str(user['enabled']).lower(),
                                                        f"'{user[_logged_in_at]}'" if user.get(
                                                            _logged_in_at) else 'null'))
 

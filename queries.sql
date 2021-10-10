@@ -1,6 +1,6 @@
 -- users query
-SELECT id, name, user_roles, is_disabled, last_login
-  FROM (SELECT u.id, u.name, group_concat(g.name) user_roles, is_disabled, last_login
+SELECT id, name, user_roles, enabled, last_login
+  FROM (SELECT u.id, u.name, group_concat(g.name) user_roles, enabled, last_login
           FROM looker_users u
           LEFT JOIN looker_user_groups ug
             ON (ug.user_id = u.id)
