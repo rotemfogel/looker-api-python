@@ -22,8 +22,8 @@ SELECT g.name group_name, u.name user_name
         AND g.id NOT IN (1,10,11,12,13))
  WHERE u.id > 1
    AND u.name LIKE '%seekingalpha.com'
-   AND NOT is_disabled
- ORDER BY g.name, u.id;
+   AND enabled
+ ORDER BY 1,2;
 
 -- find multiple groups
 WITH d AS (
