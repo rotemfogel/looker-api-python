@@ -3,6 +3,7 @@ import os
 from pprint import pprint
 from typing import Optional
 
+import mysql.connector
 import pendulum
 import requests
 from dotenv import load_dotenv, find_dotenv
@@ -29,7 +30,7 @@ class LookerApi:
     def __init__(self):
         self._client_id = os.getenv('CLIENT_ID')
         self._client_secret = os.getenv('CLIENT_SECRET')
-        self._URL = 'https://{}:19999/api/3.1/'.format(_endpoint)
+        self._URL = f'https://{_endpoint}:19999/api/3.1/'
         self._headers = {
             'Authorization': 'token {}'.format(self._generate_auth_token())
         }
@@ -70,7 +71,7 @@ class LookerApi:
 
     def get(self, what):
         response = requests.get(self._URL + what, headers=self._headers)
-        print('-- retrieved {}'.format(what))
+        print(f'-- retrieved {what}')
         return response.json()
 
 
@@ -93,49 +94,70 @@ def _get_last_login(r: dict) -> Optional[str]:
     return pendulum.parse(result).format('YYYY-MM-DD') if result else None
 
 
-def _process_logins():
-    for table in ['user_groups', 'user_roles', 'roles', 'groups', 'users']:
-        print(f'delete from looker_{table};')
-    users = _read('users.json')
-    # active = list(filter(lambda u: not u['is_disabled'] and str(u['email']).endswith('seekingalpha.com'), users))
-    # print('total {}\nactive {}'.format(len(users), len(active)))
+def _mysql_call(cnx, sql):
+    cursor = cnx.cursor()
+    cursor.execute(sql)
+    cnx.commit()
+    cursor.close()
 
-    userss = list(
+
+def _process_logins():
+    users_json = _read('users.json')
+    # active = list(filter(lambda u: not u['is_disabled'] and str(u['email']).endswith('seekingalpha.com'), users))
+    # print(f'total {len(users)}\nactive {len(active)}')
+
+    users = list(
         map(lambda x: {'id': x['id'], 'email': x['email'], 'enabled': not x['is_disabled'],
                        _logged_in_at: _get_last_login(x), 'groups': x['group_ids'],
-                       'roles': x['role_ids']}, users))
+                       'roles': x['role_ids']}, users_json))
     roles = list(map(lambda x: {x['id']: x['name']}, _read('roles')))
-    roless = []
+    db_roles = []
     for role in roles:
         for k, v in role.items():
-            roless.append("({}, '{}')".format(k, v))
-    print('insert into looker_roles values ' + ','.join(roless) + ';')
+            db_roles.append(f"({k}, '{v}')")
 
     groups = list(map(lambda x: {x['id']: x['name']}, _read('groups')))
-    groupps = []
+    db_groups = []
     for group in groups:
         for k, v in group.items():
-            groupps.append("({}, '{}')".format(k, v))
-    print('insert into looker_groups values ' + ','.join(groupps) + ';')
+            db_groups.append(f"({k}, '{v}')")
 
-    user_groups = []
-    user_roles = []
-    user_emails = []
-    for user in userss:
+    db_user_groups = []
+    db_user_roles = []
+    db_users = []
+    for user in users:
         for group in user['groups']:
-            user_groups.append('({}, {})'.format(user['id'], group))
+            db_user_groups.append('({}, {})'.format(user['id'], group))
         for role in user['roles']:
-            user_roles.append('({}, {})'.format(user['id'], role))
-        user_emails.append("({}, '{}', {}, {})".format(user['id'], user['email'],
-                                                       str(user['enabled']).lower(),
-                                                       f"'{user[_logged_in_at]}'" if user.get(
-                                                           _logged_in_at) else 'null'))
-
-    print('insert into looker_users values ' + ','.join(user_emails) + ';')
-    print('insert into looker_user_groups values ' + ','.join(user_groups) + ';')
-    print('insert into looker_user_roles values ' + ','.join(user_roles) + ';')
+            db_user_roles.append('({}, {})'.format(user['id'], role))
+        db_users.append("({}, '{}', {}, {})".format(user['id'], user['email'],
+                                                    str(user['enabled']).lower(),
+                                                    f"'{user[_logged_in_at]}'" if user.get(
+                                                        _logged_in_at) else 'null'))
     # print(groups)
     # print(users)
+
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    db = 'looker'
+    config = {
+        'user': db,
+        'password': db,
+        'host': '127.0.0.1',
+        'database': db,
+        'raise_on_warnings': True
+    }
+
+    cnx = mysql.connector.connect(**config)
+    for table in ['user_groups', 'user_roles', 'roles', 'groups', 'users']:
+        _mysql_call(cnx, f'delete from looker_{table};')
+    _mysql_call(cnx, 'insert into looker_roles values ' + ','.join(db_roles) + ';')
+    _mysql_call(cnx, 'insert into looker_groups values ' + ','.join(db_groups) + ';')
+    _mysql_call(cnx, 'insert into looker_users values ' + ','.join(db_users) + ';')
+    _mysql_call(cnx, 'insert into looker_user_groups values ' + ','.join(db_user_groups) + ';')
+    _mysql_call(cnx, 'insert into looker_user_roles values ' + ','.join(db_user_roles) + ';')
+    cnx.close()
 
 
 def _dashboards_with_more_than_25_elements():
@@ -154,11 +176,11 @@ def _dashboards_with_more_than_25_elements():
 
 
 def main():
-    looker_api = LookerApi()
+    # looker_api = LookerApi()
     # _write('dashboards', looker_api.get_all_dashboards())
-    _write('users', looker_api.get_all_users())
-    _write('roles', looker_api.get_all_roles())
-    _write('groups', looker_api.get_all_groups())
+    # _write('users', looker_api.get_all_users())
+    # _write('roles', looker_api.get_all_roles())
+    # _write('groups', looker_api.get_all_groups())
     # _write('swagger', looker_api.get('swagger.json'))
     # _write('looks', looker_api.get('looks'))
     _process_logins()
