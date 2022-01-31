@@ -94,7 +94,8 @@ def _get_last_login(r: dict) -> Optional[str]:
     return pendulum.parse(result).format('YYYY-MM-DD') if result else None
 
 
-def _mysql_call(cnx, sql):
+def _mysql_call(cnx, table, sql, operation='insert'):
+    print(f'executing {operation} on {table}')
     cursor = cnx.cursor()
     cursor.execute(sql)
     cnx.commit()
@@ -151,12 +152,12 @@ def _process_logins():
 
     cnx = mysql.connector.connect(**config)
     for table in ['user_groups', 'user_roles', 'roles', 'groups', 'users']:
-        _mysql_call(cnx, f'delete from looker_{table};')
-    _mysql_call(cnx, 'insert into looker_roles values ' + ','.join(db_roles) + ';')
-    _mysql_call(cnx, 'insert into looker_groups values ' + ','.join(db_groups) + ';')
-    _mysql_call(cnx, 'insert into looker_users values ' + ','.join(db_users) + ';')
-    _mysql_call(cnx, 'insert into looker_user_groups values ' + ','.join(db_user_groups) + ';')
-    _mysql_call(cnx, 'insert into looker_user_roles values ' + ','.join(db_user_roles) + ';')
+        _mysql_call(cnx, table, f'delete from looker_{table};', 'delete')
+    _mysql_call(cnx, 'looker_roles', 'insert into looker_roles values ' + ','.join(db_roles) + ';')
+    _mysql_call(cnx, 'looker_groups', 'insert into looker_groups values ' + ','.join(db_groups) + ';')
+    _mysql_call(cnx, 'looker_users', 'insert into looker_users values ' + ','.join(db_users) + ';')
+    _mysql_call(cnx, 'looker_user_groups', 'insert into looker_user_groups values ' + ','.join(db_user_groups) + ';')
+    _mysql_call(cnx, 'looker_user_roles', 'insert into looker_user_roles values ' + ','.join(db_user_roles) + ';')
     cnx.close()
 
 
@@ -176,11 +177,11 @@ def _dashboards_with_more_than_25_elements():
 
 
 def main():
-    # looker_api = LookerApi()
+    looker_api = LookerApi()
     # _write('dashboards', looker_api.get_all_dashboards())
-    # _write('users', looker_api.get_all_users())
-    # _write('roles', looker_api.get_all_roles())
-    # _write('groups', looker_api.get_all_groups())
+    _write('users', looker_api.get_all_users())
+    _write('roles', looker_api.get_all_roles())
+    _write('groups', looker_api.get_all_groups())
     # _write('swagger', looker_api.get('swagger.json'))
     # _write('looks', looker_api.get('looks'))
     _process_logins()

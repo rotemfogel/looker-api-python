@@ -19,10 +19,9 @@
 -- Table structure for table `looker_groups`
 --
 
-DROP TABLE IF EXISTS `looker_groups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `looker_groups` (
+CREATE TABLE IF NOT EXISTS `looker_groups` (
   `id` int(11) NOT NULL,
   `name` varchar(64) NOT NULL,
   PRIMARY KEY (`id`),
@@ -34,10 +33,9 @@ CREATE TABLE `looker_groups` (
 -- Table structure for table `looker_roles`
 --
 
-DROP TABLE IF EXISTS `looker_roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `looker_roles` (
+CREATE TABLE IF NOT EXISTS `looker_roles` (
   `id` int(11) NOT NULL,
   `name` varchar(64) NOT NULL,
   PRIMARY KEY (`id`),
@@ -49,10 +47,9 @@ CREATE TABLE `looker_roles` (
 -- Table structure for table `looker_user_groups`
 --
 
-DROP TABLE IF EXISTS `looker_user_groups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `looker_user_groups` (
+CREATE TABLE IF NOT EXISTS `looker_user_groups` (
   `user_id` int(11) NOT NULL,
   `group_id` int(11) NOT NULL,
   UNIQUE KEY `looker_user_groups_ux` (`user_id`,`group_id`),
@@ -66,10 +63,9 @@ CREATE TABLE `looker_user_groups` (
 -- Table structure for table `looker_user_roles`
 --
 
-DROP TABLE IF EXISTS `looker_user_roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `looker_user_roles` (
+CREATE TABLE IF NOT EXISTS `looker_user_roles` (
   `user_id` int(11) NOT NULL,
   `role_id` int(11) NOT NULL,
   UNIQUE KEY `looker_user_roles_ux` (`user_id`,`role_id`),
@@ -83,10 +79,9 @@ CREATE TABLE `looker_user_roles` (
 -- Table structure for table `looker_users`
 --
 
-DROP TABLE IF EXISTS `looker_users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `looker_users` (
+CREATE TABLE IF NOT EXISTS `looker_users` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `enabled` tinyint(1) NOT NULL DEFAULT 0,
