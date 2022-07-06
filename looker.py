@@ -98,8 +98,27 @@ def _mysql_call(cnx, table, sql, operation='insert'):
     print(f'executing {operation} on {table}')
     cursor = cnx.cursor()
     cursor.execute(sql)
-    cnx.commit()
+    if operation == 'none':
+        cursor.fetchone()
+    else:
+        cnx.commit()
     cursor.close()
+
+
+def _get_connection():
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    db = 'looker'
+    config = {
+        'user': db,
+        'password': db,
+        'host': '127.0.0.1',
+        'database': db,
+        'raise_on_warnings': True
+    }
+
+    return mysql.connector.connect(**config)
 
 
 def _process_logins():
@@ -138,19 +157,7 @@ def _process_logins():
     # print(groups)
     # print(users)
 
-    from dotenv import load_dotenv
-    load_dotenv()
-
-    db = 'looker'
-    config = {
-        'user': db,
-        'password': db,
-        'host': '127.0.0.1',
-        'database': db,
-        'raise_on_warnings': True
-    }
-
-    cnx = mysql.connector.connect(**config)
+    cnx = _get_connection()
     for table in ['user_groups', 'user_roles', 'roles', 'groups', 'users']:
         _mysql_call(cnx, table, f'delete from looker_{table};', 'delete')
     _mysql_call(cnx, 'looker_roles', 'insert into looker_roles values ' + ','.join(db_roles) + ';')
@@ -177,6 +184,13 @@ def _dashboards_with_more_than_25_elements():
 
 
 def main():
+    try:
+        cnx = _get_connection()
+        _mysql_call(cnx, 'none', 'select 1', 'none')
+        cnx.close()
+    except Exception as e:
+        print(f'error connecting to db: {str(e)}')
+        exit(-2)
     looker_api = LookerApi()
     # _write('dashboards', looker_api.get_all_dashboards())
     _write('users', looker_api.get_all_users())
